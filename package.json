@@ -1,0 +1,14 @@
+{
+  "name": "front-end-analytics",
+  "version": "1.0.0",
+  "description": "Automated analytics of front-end frameworks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emiel Kwakkel",
+  "license": "ISC",
+  "devDependencies": {
+    "get-folder-size": "^1.0.0"
+  }
+}
