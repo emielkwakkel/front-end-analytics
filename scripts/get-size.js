@@ -1,30 +1,33 @@
-var getSize = require('get-folder-size');
+const getSize = require('get-folder-size');
+const fs = require('fs');
+const path = require('path');
+const dir = require('node-dir');
 
-let frameworks = {
-    angular: {
-        name: 'AngularJS',
-        version: '123',
-        numberOfNodes: 1, //getNodes()
-        size: getFolderSize('./frameworks/angular/node_modules')
-    },
-    react: {
-        name: 'React',
-        version: '12',
-        numberOfNodes: 3, //getNodes()
-        size: getFolderSize('./frameworks/react/node_modules')
-    }
-};
+const basePath = './frameworks';
+let frameworks = {};
+getDirectories(basePath).forEach(getVersions);
 
+function getDirectories(folder) {
+    return fs.readdirSync(folder)
+        .filter(file => fs.statSync(path.resolve(folder, file)).isDirectory());
+}
 
-var angularSize = getFolderSize('./frameworks/angular/node_modules');
+function getVersions(framework) {
+    frameworks[framework] = {};
+    let frameworkPath = path.join(basePath, framework);
 
-/**
- * Get Folder Size
- * @param {string} folder Location to calculate the folder size of
- * @return {*} Error or size in Megabytes.
- */
-function getFolderSize(folder) {
-    return getSize(folder, getFolderSizeCallback);
+    getDirectories(frameworkPath)
+        .forEach(version => {
+            frameworks[framework][version] = {};
+            let versionPath = path.join(basePath, framework, version);
+            getSize(versionPath, (error, size) => {
+                if (error) { throw error; }
+
+                frameworks[framework][version].size = byteToMb(size);
+                console.log(frameworks);
+
+            });
+        });
 }
 
 /**
@@ -33,8 +36,11 @@ function getFolderSize(folder) {
  * @param {Object} size Size in bytes
  * @return {string} Size in Megabytes
  */
-function getFolderSizeCallback(error, size) {
+function getSizeCallback(error, size) {
     if (error) { throw error; }
-    return (size / 1024 / 1024).toFixed(2) + ' Mb'; // Size is in bytes
+    return byteToMb(size);
 }
 
+function byteToMb(bytes) {
+    return (bytes / 1024 / 1024).toFixed(2) + ' Mb'; // Size is in bytes
+}
